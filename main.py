@@ -1,5 +1,7 @@
 import argparse
+import os
 import random
+import sys
 from collections import deque
 from typing import ClassVar, NamedTuple, cast, override
 
@@ -8,9 +10,11 @@ from textual.app import App, ComposeResult
 from textual.binding import BindingType
 from textual.geometry import Size
 from textual.reactive import reactive
+from textual.theme import BUILTIN_THEMES
 from textual.widgets import Footer, Static
 
 HISTORY_LIMIT = 200
+THEME_ENV_VAR = "CONWAY_THEME"
 
 
 def proof_of_life(status: bool, neighbors: int) -> bool:
@@ -162,6 +166,7 @@ class ConwayApp(App[None]):
         wrap: bool = False,
         seed: int | None = None,
         crypto: bool = False,
+        theme: str | None = None,
     ) -> None:
         super().__init__()
 
@@ -170,6 +175,7 @@ class ConwayApp(App[None]):
         self.initial_wrap: bool = wrap
         self.seed: int | None = seed
         self.crypto: bool = crypto
+        self.initial_theme: str | None = theme
 
         self.generation: int = 0
         self.grid: Grid = Grid(1, 1)
@@ -199,6 +205,9 @@ class ConwayApp(App[None]):
         return width, height
 
     def on_mount(self) -> None:
+        if self.initial_theme is not None:
+            self.theme = self.initial_theme
+
         width, height = self._compute_dimensions(self.size)
 
         rng = random.SystemRandom() if self.crypto else random.Random(self.seed)
@@ -275,6 +284,7 @@ class CliArgs(NamedTuple):
     wrap: bool
     seed: int | None
     crypto: bool
+    theme: str | None
 
 
 def parse_args() -> CliArgs:
@@ -321,6 +331,17 @@ def parse_args() -> CliArgs:
         ),
     )
 
+    parser.add_argument(
+        "--theme",
+        type=str,
+        default=None,
+        choices=sorted(BUILTIN_THEMES),
+        help=(
+            "Textual theme to start with; falls back to the "
+            f"{THEME_ENV_VAR} environment variable, then Textual's default"
+        ),
+    )
+
     args = parser.parse_args()
 
     width = cast("int | None", args.width)
@@ -328,8 +349,26 @@ def parse_args() -> CliArgs:
     wrap = cast("bool", args.wrap)
     seed = cast("int | None", args.seed)
     crypto = cast("bool", args.crypto)
+    theme = cast("str | None", args.theme) or resolve_env_theme()
 
-    return CliArgs(width=width, height=height, wrap=wrap, seed=seed, crypto=crypto)
+    return CliArgs(
+        width=width, height=height, wrap=wrap, seed=seed, crypto=crypto, theme=theme
+    )
+
+
+def resolve_env_theme() -> str | None:
+    theme = os.environ.get(THEME_ENV_VAR)
+
+    if theme is None:
+        return None
+
+    if theme not in BUILTIN_THEMES:
+        choices = ", ".join(sorted(BUILTIN_THEMES))
+        message = f"warning: ignoring unknown {THEME_ENV_VAR}={theme!r} (choose from: {choices})"
+        print(message, file=sys.stderr)
+        return None
+
+    return theme
 
 
 def main() -> None:
@@ -341,6 +380,7 @@ def main() -> None:
         wrap=cli.wrap,
         seed=cli.seed,
         crypto=cli.crypto,
+        theme=cli.theme,
     ).run()
 
 
