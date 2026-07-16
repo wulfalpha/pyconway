@@ -76,5 +76,8 @@ or set the `CONWAY_THEME` environment variable as a default (a `--theme`
 flag on the command line always wins):
 
 ```sh
+bash
 export CONWAY_THEME=gruvbox
+fish
+set -x CONWAY_THEME gruvbox
 ```
