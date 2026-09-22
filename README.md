@@ -2,25 +2,31 @@
 
 Conway's Game of Life as a terminal UI, built with [Textual](https://github.com/Textualize/textual).
 
-![Python 3.14+](https://img.shields.io/badge/python-3.14%2B-blue)
+![Python 3.12+](https://img.shields.io/badge/python-3.12%2B-blue)
 
 ## Requirements
 
-- Python 3.14+
+- Python 3.12+
 - [uv](https://docs.astral.sh/uv/)
 
-## Running
+## Installing
 
 ```sh
-uv run main.py
+uv tool install .
 ```
 
-Or use the wrapper script, which runs the app regardless of your current
-working directory:
+This installs the `pyconway` command in uv's tool environment. Run it from any
+directory:
 
 ```sh
-./run_conway.sh
+pyconway
 ```
+
+To run a checkout without installing it, use `uv run pyconway`.
+
+`run_conway.sh` is an optional example of a personal shim around an installed
+copy. It can be copied elsewhere and customized with machine-specific default
+arguments; it is not needed for normal use.
 
 ## Controls
 
@@ -41,7 +47,7 @@ possible predecessor, so the previous state has to be recorded, not computed.
 ## Options
 
 ```
-usage: main.py [-h] [--width WIDTH] [--height HEIGHT] [--wrap] [--seed SEED | -c] [--theme THEME]
+usage: pyconway [-h] [--width WIDTH] [--height HEIGHT] [--wrap] [--seed SEED | -c] [--theme THEME]
 
   --width WIDTH    grid width in cells; defaults to half the terminal columns
   --height HEIGHT  grid height in cells; defaults to terminal rows minus the top bar
@@ -69,15 +75,16 @@ open the command palette and preview them live.
 To start with a specific theme, either pass `--theme`:
 
 ```sh
-uv run main.py --theme nord
+pyconway --theme nord
 ```
 
 or set the `CONWAY_THEME` environment variable as a default (a `--theme`
 flag on the command line always wins):
 
-```sh
-bash
+```bash
 export CONWAY_THEME=gruvbox
-fish
+```
+
+```fish
 set -x CONWAY_THEME gruvbox
 ```

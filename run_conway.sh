@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-PROJECT_DIR="$HOME/Projects/python/conway"
-
-exec uv run --project "$PROJECT_DIR" \
-    python "$PROJECT_DIR/main.py" "$@"
+# Example shim for an installed copy of pyconway. Add machine-specific defaults
+# here if desired, such as: exec pyconway --theme nord "$@"
+exec pyconway "$@"

@@ -1,3 +1,5 @@
+"""Conway's Game of Life simulation and Textual application."""
+
 import argparse
 import os
 import random
